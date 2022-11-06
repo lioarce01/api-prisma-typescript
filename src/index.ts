@@ -26,11 +26,31 @@ app.get("/posts", async (req, res, next) => {
   }
 });
 
+// get all users
+app.get("/users", async (req, res, next) => {
+  try {
+    const users = await prisma.user.findMany({
+      include: {
+        posts: true,
+      },
+    });
+
+    res.json({ users });
+  } catch (error: any) {
+    next(error.message);
+  }
+});
+
 // create a posts
 app.post("/posts", async (req, res, next) => {
   try {
     const post = await prisma.post.create({
-      data: { authorId: 1, ...req.body },
+      // crear un post desde el id del usuario que lo crea
+      data: {
+        authorId: req.body.authorId,
+        title: req.body.title,
+        published: req.body.published,
+      }
     });
 
     res.json({ post });
@@ -44,7 +64,7 @@ app.get("/posts/:id", async (req, res, next) => {
   try {
     const post = await prisma.post.findUnique({
       where: {
-        id: Number(req.params.id),
+        id: (req.params as any).id,
       },
     });
 
@@ -59,7 +79,7 @@ app.patch("/posts/:id", async (req, res, next) => {
   try {
     const post = await prisma.post.update({
       where: {
-        id: Number(req.params.id),
+        id: (req.params as any).id,
       },
       data: req.body,
     });
@@ -75,7 +95,7 @@ app.delete("/posts/:id", async (req, res, next) => {
   try {
     await prisma.post.delete({
       where: {
-        id: Number(req.params.id),
+        id: (req.params as any).id,
       },
     });
 
@@ -90,7 +110,7 @@ app.get("/users/:id/posts", async (req, res, next) => {
   try {
     const usersWithPosts = await prisma.user.findUnique({
       where: {
-        id: Number(req.params.id),
+        id: (req.params as any).id,
       },
       include: {
         posts: {

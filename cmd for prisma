@@ -1,0 +1,13 @@
+npx prisma db push // to create the database tables
+npx prisma studio // to open the Prisma Studio GUI
+npm run seed // to seed the database with some data
+npx prisma migrate dev --name init // to create the initial migration file for the database in development
+npx prisma migrate deploy // to deploy the migration to the database in production (Heroku)
+
+upsert // update or insert a new record if it doesn't exist yet
+findMany // find all records
+findOne // find one record
+findUnique // find one record by a unique field
+create // create a new record
+update // update a record
+delete // delete a record

@@ -6,12 +6,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
+  id    String  @id @default(cuid()) @map("_id")
   email String  @unique
   name  String?
   role  Role    @default(User)
@@ -19,13 +19,13 @@ model User {
 }
 
 model Post {
-  id        Int      @id @default(autoincrement())
-  title     String   @db.VarChar(255)
+  id        String   @id @default(cuid()) @map("_id")
+  title     String   @unique
   published Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   author    User?    @relation(fields: [authorId], references: [id])
-  authorId  Int?
+  authorId  String?
 }
 
 enum Role {
