@@ -7,8 +7,30 @@ import { requiresAuth } from "express-openid-connect";
 const app = express();
 const prisma = new PrismaClient();
 
+const config = {
+  authRequired: false,
+  auth0Logout: true,
+  secret: process.env.AUTH0_CLIENT_SECRET,
+  baseURL: process.env.BASE_URL,
+  clientID: process.env.AUTH0_CLIENT_ID,
+  issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
+};
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(auth(config));
+
+app.get('/', (req, res) => {
+  res.render('index', { 
+    title: "Demo",
+    isAuthenticated: req.oidc.isAuthenticated(),
+    user: req.oidc.user,
+  });
+});
+
+app.set("views", "./src/views");
+app.set("view engine", "ejs")
+
 
 // get all posts
 app.get("/posts", async (req, res, next) => {
@@ -146,26 +168,6 @@ app.get("/users/:id/posts", async (req, res, next) => {
     next(error.message);
   }
 });
-
-//////////////////////////////////////////////
-
-const config = {
-  authRequired: false,
-  auth0Logout: true,
-  secret: process.env.AUTH0_CLIENT_SECRET,
-  baseURL: 'http://localhost:3000',
-  clientID: '8CZpCFmQwIc6FRCrKPJNl5pIZK2n2k5F',
-  issuerBaseURL: 'https://dev-gdm-hbgx.us.auth0.com'
-};
-
-// auth router attaches /login, /logout, and /callback routes to the baseURL
-app.use(auth(config));
-
-// req.isAuthenticated is provided from the auth router
-app.get('/', (req, res) => {
-  res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out');
-});
-
 
 app.listen(3000, () => {
   console.log("App listening on port 3000");
